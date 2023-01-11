@@ -21,7 +21,7 @@ public class KakaoAddressSearchService {
     private final RestTemplate restTemplate; // config에서 Bean으로 생성하여 의존성 주입 완료
     private final KakaoUriBuilderService kakaoUriBuilderService;
 
-    @Value("{kakao.rest.api.key}")
+    @Value("${kakao.rest.api.key}")
     private String kakaoRestApiKey;
 
     public KakaoApiResponseDto requestAddressSearch(String address) {
