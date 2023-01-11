@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  practice-redis:
+    container_name: practice-redis
+    build:
+      dockerfile: Dockerfile
+      context: ./redis
+    image: mrcocoball/practice-redis
+    ports:
+      - "6379:6379"
+  practice-database:
+    container_name: practice-database
+    build:
+      dockerfile: Dockerfile
+      context: ./database
+    image: mrcocoball/practice-database
+    environment:
+      - MARIADB_DATABASE=practice_database
+      - MARIADB_ROOT_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    volumes:
+      - ./database/config:/etc/mysql/conf.d
+    ports:
+      - "4000:4000"
