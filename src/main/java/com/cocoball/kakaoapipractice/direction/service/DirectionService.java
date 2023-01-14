@@ -1,6 +1,7 @@
 package com.cocoball.kakaoapipractice.direction.service;
 
 import com.cocoball.kakaoapipractice.api.dto.DocumentDto;
+import com.cocoball.kakaoapipractice.api.service.KakaoCategorySearchService;
 import com.cocoball.kakaoapipractice.direction.entity.Direction;
 import com.cocoball.kakaoapipractice.direction.repository.DirectionRepository;
 import com.cocoball.kakaoapipractice.pharmacy.dto.PharmacyDto;
@@ -27,6 +28,7 @@ public class DirectionService {
 
     private PharmacySearchService pharmacySearchService;
     private DirectionRepository directionRepository;
+    private KakaoCategorySearchService kakaoCategorySearchService;
 
 
     @Transactional
@@ -66,6 +68,34 @@ public class DirectionService {
                 .limit(MAX_SEARCH_COUNT)
                 .collect(Collectors.toList());
     }
+
+    public List<Direction> buildDirectionListByCategoryApi(DocumentDto inputDocumentDto) {
+
+        /**
+         * DocumentDto의 경우 Kakao API를 통해 주소를 검색했을 때 위도 경도 데이터가 존재함
+         */
+
+        if(Objects.isNull(inputDocumentDto)) return Collections.emptyList();
+
+        return kakaoCategorySearchService
+                .requestPharmacyCategorySearch(inputDocumentDto.getLatitude(), inputDocumentDto.getLongitude(), RADIUS_KM)
+                .getDocumentList()
+                .stream().map(resultDocumentDto ->
+                        Direction.builder()
+                                .inputAddress(inputDocumentDto.getAddressName())
+                                .inputLatitude(inputDocumentDto.getLatitude())
+                                .inputLongitude(inputDocumentDto.getLongitude())
+                                .targetPharmacyName(resultDocumentDto.getPlaceName())
+                                .targetAddress(resultDocumentDto.getAddressName())
+                                .targetLatitude(resultDocumentDto.getLatitude())
+                                .targetLongitude(resultDocumentDto.getLongitude())
+                                .distance(resultDocumentDto.getDistance() * 0.001) // KM 단위
+                                .build())
+                .limit(MAX_SEARCH_COUNT)
+                .collect(Collectors.toList());
+    }
+
+
 
     // Haversine formula
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {

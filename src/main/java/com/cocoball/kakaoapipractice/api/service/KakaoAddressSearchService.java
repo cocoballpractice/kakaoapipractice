@@ -21,6 +21,10 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class KakaoAddressSearchService {
 
+    /**
+     * 주소 검색을 통한 찾기
+     */
+
     private final RestTemplate restTemplate; // config에서 Bean으로 생성하여 의존성 주입 완료
     private final KakaoUriBuilderService kakaoUriBuilderService;
 

@@ -16,6 +16,9 @@ public class DocumentDto {
      * Kakao 로컬/지도의 Document 부분 Dto
      */
 
+    @JsonProperty("place_name") // API에서 제공하는 장소명
+    private String placeName;
+
     @JsonProperty("address_name")
     private String addressName;
 
@@ -24,5 +27,8 @@ public class DocumentDto {
 
     @JsonProperty("x")
     private double longitude;
+
+    @JsonProperty("distance")
+    private double distance;
 
 }
