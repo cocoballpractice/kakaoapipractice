@@ -3,6 +3,7 @@ package com.cocoball.kakaoapipractice.pharmacy.service;
 import com.cocoball.kakaoapipractice.api.dto.DocumentDto;
 import com.cocoball.kakaoapipractice.api.dto.KakaoApiResponseDto;
 import com.cocoball.kakaoapipractice.api.service.KakaoAddressSearchService;
+import com.cocoball.kakaoapipractice.direction.dto.OutputDto;
 import com.cocoball.kakaoapipractice.direction.entity.Direction;
 import com.cocoball.kakaoapipractice.direction.service.DirectionService;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -21,14 +24,14 @@ public class PharmacyRecommendationService {
     private final KakaoAddressSearchService kakaoAddressSearchService;
     private final DirectionService directionService;
 
-    public void recommendationPharmacyList(String address) {
+    public List<OutputDto> recommendationPharmacyList(String address) {
 
         // 문자열 기반 주소로 카카오 로컬/지도 검색 API 호출
         KakaoApiResponseDto kakaoApiResponseDto = kakaoAddressSearchService.requestAddressSearch(address);
 
         if (Objects.isNull(kakaoApiResponseDto) || CollectionUtils.isEmpty(kakaoApiResponseDto.getDocumentList())) {
             log.error("[PharmacyRecommendationService recommendationPharmacyList fail] input address : {}", address);
-            return;
+            return Collections.emptyList();
         }
 
         // API 호출 결과를 Dto로 가져오기
@@ -37,9 +40,11 @@ public class PharmacyRecommendationService {
         // Dto를 목적지 리스트로 변환(거리 계산 포함)
         List<Direction> directionList = directionService.buildDirectionList(documentDto);
 
-        // 목적지 리스트를 저장
-        directionService.saveAll(directionList);
-
+        // 목적지 리스트를 저장하고 Dto 리스트 반환
+        return directionService.saveAll(directionList)
+                .stream()
+                .map(t -> convertToOutputDto(t))
+                .collect(Collectors.toList());
     }
 
     public void recommendationPharmacyListByApi(String address) {
@@ -61,6 +66,16 @@ public class PharmacyRecommendationService {
         // 목적지 리스트를 저장
         directionService.saveAll(directionList);
 
+    }
+
+    private OutputDto convertToOutputDto(Direction direction) {
+        return OutputDto.builder()
+                .pharmacyName(direction.getTargetPharmacyName())
+                .pharmacyAddress(direction.getTargetAddress())
+                .directionUrl("todo")
+                .roadViewUrl("todo")
+                .distance(String.format("%.2f km", direction.getDistance()))
+                .build();
     }
 
 }
