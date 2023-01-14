@@ -13,7 +13,7 @@ public class KakaoUriBuilderService {
     private static final String KAKAO_LOCAL_SEARCH_ADDRESS_URL = "https://dapi.kakao.com/v2/local/search/address.json";
 
     // URI를 생성해주는 메서드
-    public URI buildUriAddressSearch(String address) {
+    public URI buildUriByAddressSearch(String address) {
 
         /**
          * 기본 URL + query=에 검색할 실제 주소를 부착해야 함

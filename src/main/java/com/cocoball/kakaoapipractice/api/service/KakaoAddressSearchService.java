@@ -38,7 +38,7 @@ public class KakaoAddressSearchService {
         if(ObjectUtils.isEmpty(address)) return null;
 
         // URI 호출
-        URI uri = kakaoUriBuilderService.buildUriAddressSearch(address);
+        URI uri = kakaoUriBuilderService.buildUriByAddressSearch(address);
 
         // 헤더값 추가
         HttpHeaders headers = new HttpHeaders();
