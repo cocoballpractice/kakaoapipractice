@@ -2,11 +2,14 @@ package com.cocoball.kakaoapipractice.direction.service;
 
 import com.cocoball.kakaoapipractice.api.dto.DocumentDto;
 import com.cocoball.kakaoapipractice.direction.entity.Direction;
+import com.cocoball.kakaoapipractice.direction.repository.DirectionRepository;
 import com.cocoball.kakaoapipractice.pharmacy.dto.PharmacyDto;
 import com.cocoball.kakaoapipractice.pharmacy.service.PharmacySearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,7 +26,14 @@ public class DirectionService {
     private static final double RADIUS_KM = 10.0; // 검색 최대 반경(km)
 
     private PharmacySearchService pharmacySearchService;
+    private DirectionRepository directionRepository;
 
+
+    @Transactional
+    public List<Direction> saveAll(List<Direction> directionList) {
+        if(CollectionUtils.isEmpty(directionList)) return Collections.emptyList();
+        return directionRepository.saveAll(directionList);
+    }
 
     public List<Direction> buildDirectionList(DocumentDto documentDto) {
 
