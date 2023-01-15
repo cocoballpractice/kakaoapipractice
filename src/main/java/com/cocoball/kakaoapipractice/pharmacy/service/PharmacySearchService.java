@@ -1,5 +1,6 @@
 package com.cocoball.kakaoapipractice.pharmacy.service;
 
+import com.cocoball.kakaoapipractice.pharmacy.cache.PharmacyRedisTemplateService;
 import com.cocoball.kakaoapipractice.pharmacy.dto.PharmacyDto;
 import com.cocoball.kakaoapipractice.pharmacy.entity.Pharmacy;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,16 @@ import java.util.stream.Collectors;
 public class PharmacySearchService {
 
     private final PharmacyRepositoryService pharmacyRepositoryService;
+    private final PharmacyRedisTemplateService pharmacyRedisTemplateService;
 
     public List<PharmacyDto> searchPharmacyDtoList() {
 
         // REDIS
+        List<PharmacyDto> pharmacyDtoList = pharmacyRedisTemplateService.findAll();
+        if(!pharmacyDtoList.isEmpty()) {
+            log.info("redis findAll success!");
+            return pharmacyDtoList; // RedisTemplate에서 장애 발생 시 빈 리스트 출력
+        }
 
         // DB
         return pharmacyRepositoryService.findAll()
