@@ -4,13 +4,13 @@ import com.cocoball.kakaoapipractice.api.dto.DocumentDto;
 import com.cocoball.kakaoapipractice.api.service.KakaoCategorySearchService;
 import com.cocoball.kakaoapipractice.direction.entity.Direction;
 import com.cocoball.kakaoapipractice.direction.repository.DirectionRepository;
-import com.cocoball.kakaoapipractice.pharmacy.dto.PharmacyDto;
 import com.cocoball.kakaoapipractice.pharmacy.service.PharmacySearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,16 +25,31 @@ public class DirectionService {
 
     private static final int MAX_SEARCH_COUNT = 3; // 최대 검색 갯수 상수화
     private static final double RADIUS_KM = 10.0; // 검색 최대 반경(km)
+    private static final String DIRECTION_BASE_URL = "https://map.kakao.com/link/map";
 
-    private PharmacySearchService pharmacySearchService;
-    private DirectionRepository directionRepository;
-    private KakaoCategorySearchService kakaoCategorySearchService;
+    private final PharmacySearchService pharmacySearchService;
+    private final DirectionRepository directionRepository;
+    private final KakaoCategorySearchService kakaoCategorySearchService;
+    private final Base62Service base62Service;
 
 
     @Transactional
     public List<Direction> saveAll(List<Direction> directionList) {
         if(CollectionUtils.isEmpty(directionList)) return Collections.emptyList();
         return directionRepository.saveAll(directionList);
+    }
+
+    public String findDirectionUrlById(String encodedId) {
+        Long decodedId = base62Service.decodeDirectionId(encodedId);
+        Direction direction =  directionRepository.findById(decodedId).orElse(null);
+
+        String params = String.join(",", direction.getTargetPharmacyName(),
+                String.valueOf(direction.getTargetLatitude()), String.valueOf(direction.getTargetLongitude()));
+
+        String result = UriComponentsBuilder.fromHttpUrl(DIRECTION_BASE_URL + params).toUriString();
+        //RestTemplate과 관계가 없으므로 인코딩 진행
+
+        return result;
     }
 
     public List<Direction> buildDirectionList(DocumentDto documentDto) {

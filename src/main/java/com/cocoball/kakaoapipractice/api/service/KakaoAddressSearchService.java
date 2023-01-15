@@ -52,6 +52,7 @@ public class KakaoAddressSearchService {
         // Kakao API 호출
         // exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity, Class<T> responseType) throws RestClientException
         return restTemplate.exchange(uri, HttpMethod.GET, httpEntity, KakaoApiResponseDto.class).getBody();
+        // restTemplate의 exchange에 String(인코딩 된 것) 된 url을 넣게 되면 중복으로 한 번 더 인코딩을 하게 됨. 따라서 인코딩이 안된 URI로 넘긴 것
     }
 
     @Recover // Retry 실패 시 처리 메서드, 주의점 : 원래 메서드의 반환 타입을 반환해야 함

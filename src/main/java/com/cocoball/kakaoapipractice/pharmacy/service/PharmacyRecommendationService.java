@@ -5,9 +5,11 @@ import com.cocoball.kakaoapipractice.api.dto.KakaoApiResponseDto;
 import com.cocoball.kakaoapipractice.api.service.KakaoAddressSearchService;
 import com.cocoball.kakaoapipractice.direction.dto.OutputDto;
 import com.cocoball.kakaoapipractice.direction.entity.Direction;
+import com.cocoball.kakaoapipractice.direction.service.Base62Service;
 import com.cocoball.kakaoapipractice.direction.service.DirectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -23,6 +25,12 @@ public class PharmacyRecommendationService {
 
     private final KakaoAddressSearchService kakaoAddressSearchService;
     private final DirectionService directionService;
+    private final Base62Service base62Service;
+
+    private static final String ROAD_VIEW_BASE_URL = "https://map.kakao.com/link/roadview";
+
+    @Value("${pharmacy.recommendation.base.url")
+    private String baseUrl;
 
     public List<OutputDto> recommendationPharmacyList(String address) {
 
@@ -34,7 +42,7 @@ public class PharmacyRecommendationService {
             return Collections.emptyList();
         }
 
-        // API 호출 결과를 Dto로 가져오기
+        // API 호출 결과를 Dto로 가져오기 (위치 기반 데이터)
         DocumentDto documentDto = kakaoApiResponseDto.getDocumentList().get(0);
 
         // Dto를 목적지 리스트로 변환(거리 계산 포함)
@@ -57,7 +65,7 @@ public class PharmacyRecommendationService {
             return;
         }
 
-        // API 호출 결과를 Dto로 가져오기
+        // API 호출 결과를 Dto로 가져오기 (위치 기반 데이터)
         DocumentDto documentDto = kakaoApiResponseDto.getDocumentList().get(0);
 
         // Dto를 목적지 리스트로 변환(거리 계산 포함)
@@ -69,11 +77,12 @@ public class PharmacyRecommendationService {
     }
 
     private OutputDto convertToOutputDto(Direction direction) {
+
         return OutputDto.builder()
                 .pharmacyName(direction.getTargetPharmacyName())
                 .pharmacyAddress(direction.getTargetAddress())
-                .directionUrl("todo")
-                .roadViewUrl("todo")
+                .directionUrl(baseUrl + base62Service.encodeDirectionId(direction.getId()))
+                .roadViewUrl(ROAD_VIEW_BASE_URL + direction.getTargetLatitude() + "," + direction.getTargetLongitude())
                 .distance(String.format("%.2f km", direction.getDistance()))
                 .build();
     }

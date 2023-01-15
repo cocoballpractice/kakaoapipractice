@@ -27,7 +27,7 @@ public class FormController {
 
         ModelAndView mv = new ModelAndView();
         mv.setViewName("output");
-        mv.addObject("outputFomrList", pharmacyRecommendationService.recommendationPharmacyList(inputDto.getAddress()));
+        mv.addObject("outputFormList", pharmacyRecommendationService.recommendationPharmacyList(inputDto.getAddress()));
 
         return mv;
     }
