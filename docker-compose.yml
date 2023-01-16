@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+  practice-redis:
+    container_name: practice-redis
+    build:
+      dockerfile: Dockerfile
+      context: ./redis
+    image: mrcocoball/practice-redis
+    ports:
+      - "6379:6379"
+  practice-database:
+    container_name: practice-database
+    build:
+      dockerfile: Dockerfile
+      context: ./database
+    image: mrcocoball/practice-database
+    expose:
+      - "4000"
+    environment:
+      - MARIADB_ROOT_HOST=%
+      - MARIADB_DATABASE=practice-database
+      - MARIADB_ROOT_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+    volumes:
+      - ./database/config:/etc/mysql/conf.d
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - "4000:4000"
+  practice-app:
+    container_name: practice_app
+    build: .
+    depends_on: # DB, REDIS 컨테이너 실행 후 WEB을 실행시킴
+      - practice-database
+      - practice-redis
+    image: mrcocoball/practice_app
+    environment: # .env 파일에 저장했던 환경 변수
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - KAKAO_REST_API_KEY=${KAKAO_REST_API_KEY}
+    ports:
+      - "82:8082" # 기본 포트
+    restart: always # depends on은 실행 순서만 컨트롤, 컨테이너 안의 서비스가 실행 가능한 상태인지는 확인하지 않으므로
+                    # DB / Redis가 실행 가능한 상태가 아니여서 실패할 경우 재시작하도록 설정
