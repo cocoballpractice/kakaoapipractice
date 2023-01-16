@@ -15,7 +15,7 @@ services:
       context: ./database
     image: mrcocoball/practice-database
     environment:
-      - MARIADB_DATABASE=practice_database
+      - MARIADB_DATABASE=practice-database
       - MARIADB_ROOT_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
     volumes:
       - ./database/config:/etc/mysql/conf.d

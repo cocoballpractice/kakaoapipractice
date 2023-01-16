@@ -1,3 +1,6 @@
+server:
+  port: 8082
+
 spring:
   profiles:
     active: local
@@ -26,7 +29,7 @@ spring:
       on-profile: local
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:4000/practice_database
+    url: jdbc:mariadb://localhost:4000/practice-database
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   redis:
@@ -47,3 +50,20 @@ spring:
   config:
     activate:
       on-profile: prod
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://practice-database:4000/practice-database # host 변경 (컨테이너 db명)
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  redis:
+    host: practice-redis # host 변경 (redis 컨테이너명)
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+pharmacy:
+  recommendation:
+    base:
+      url: http://localhost/dir/ # AWS EC2 할당 후 변경 예정
